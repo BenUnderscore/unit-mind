@@ -1,15 +1,22 @@
 
-import { Colony } from "./Colony";
 
 interface Memory
 {
-    rooms: Record<string, RoomMemory>
-    creeps: Record<string, CreepMemory>
+    //A list of all the rooms containing colonies
+    colonyRegistry: Array<string>;
+    //Each creep is given its own number,
+    //and this is the last issued one
+    lastCreepIndex: number;
 }
 
-//Room memory
 interface RoomMemory
 {
-    version: number, //Version is always 1
-    colony?: Colony, //The colony in this room, if any
+    //The version number of the memory in this room, set to 1
+    version: number;
+    colony?: Colony;
+}
+
+interface Colony
+{
+
 }

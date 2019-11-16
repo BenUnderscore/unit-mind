@@ -10,15 +10,6 @@
             "problemMatcher": [
                 "$tsc"
             ],
-            "group": "build"
-        },
-        {
-            "label": "Upload JS",
-            "type": "shell",
-            "command": "node update.js",
-            "dependsOn": [
-                "Compile TS"
-            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
