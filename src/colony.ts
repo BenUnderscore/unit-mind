@@ -28,7 +28,7 @@ export function initColony(roomName: string, colonyName: string = roomName)
 
 export function runColonies()
 {
-    for(let roomName in Memory.colonyRegistry)
+    for(let roomName of Memory.colonyRegistry)
     {
         let colony = Memory.rooms[roomName].colony;
         if(typeof colony !== "undefined")

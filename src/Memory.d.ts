@@ -1,12 +1,17 @@
 type ObjectID = string;
 
+
+interface CliContext
+{
+    currentColony: string | null;
+}
+
 interface Memory
 {
     //A list of all the rooms containing colonies
     colonyRegistry: string[];
-    //Each creep is given its own number,
-    //and this is the last issued one
-    lastCreepIndex: number;
+    //A struct containing all the data necessary for the CLI
+    cliContext: CliContext;
 }
 
 interface RoomMemory

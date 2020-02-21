@@ -6,7 +6,7 @@ export const initMemory = function()
     Memory.colonyRegistry = new Array<string>();
     Memory.rooms = {};
     Memory.creeps = {};
-    Memory.lastCreepIndex = 0;
+    Memory.cliContext = { currentColony: null };
 }
 
 export const loop = function()
