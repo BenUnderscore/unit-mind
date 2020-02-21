@@ -1,4 +1,5 @@
 
+import { runColonies } from "./colony";
 
 export const initMemory = function()
 {
@@ -18,4 +19,10 @@ export const loop = function()
             delete Memory.creeps[creepName];
         }
     }
+
+    //Run colonies
+    runColonies();
+
+    //Run creep logic
+    //runCreeps();
 }
