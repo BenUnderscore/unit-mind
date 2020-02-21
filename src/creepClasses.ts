@@ -43,18 +43,17 @@ export interface RegisteredCreepClass
     composition: Array<BodyPartConstant>;
 }
 
-//A registry of all the creep classes programmed into the AI
-//These are templates for spawning creeps
-let creepClassRegistry : Map<string, RegisteredCreepClass> =
-    new Map<string, RegisteredCreepClass>();
-
-//The starter worker - bootstraps a colony with only 1 spawn
-//and nothing else
-creepClassRegistry.set("Starter Worker", {
-    composition: [MOVE, MOVE, WORK, CARRY]
-});
-
 export function creepClasses() : Map<string, RegisteredCreepClass>
 {
+    //A registry of all the creep classes programmed into the AI
+    //These are templates for spawning creeps
+    let creepClassRegistry : Map<string, RegisteredCreepClass> = new Map<string, RegisteredCreepClass>();
+
+    //The starter worker - bootstraps a colony with only 1 spawn
+    //and nothing else
+    creepClassRegistry.set("Starter Worker", {
+        composition: [MOVE, MOVE, WORK, CARRY]
+    });
+    
     return creepClassRegistry;
 }

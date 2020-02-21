@@ -6,6 +6,7 @@ export const initMemory = function()
     Memory.colonyRegistry = new Array<string>();
     Memory.rooms = {};
     Memory.creeps = {};
+    Memory.lastCreepNumber = 0;
     Memory.cliContext = { currentColony: null };
 }
 
@@ -18,6 +19,11 @@ export const loop = function()
         {
             delete Memory.creeps[creepName];
         }
+    }
+
+    if(!Memory.colonyRegistry)
+    {
+        initMemory();
     }
 
     //Run colonies

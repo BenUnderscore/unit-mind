@@ -9,12 +9,12 @@ export function initColony(roomName: string, colonyName: string = roomName)
 
     if(!Memory.rooms[roomName].colony)
     {
-        let colony = {
+        let colony: Colony = {
             room: roomName,
             creepRegistry: [],
             classInfo: {},
             spawns: [],
-            colonyName: colonyName
+            name: colonyName
         };
         ensureFields(colony);
         Memory.rooms[roomName].colony = colony;
@@ -22,6 +22,12 @@ export function initColony(roomName: string, colonyName: string = roomName)
         if(!_.find(Memory.colonyRegistry, (x) => x == roomName))
         {
             Memory.colonyRegistry.push(roomName);
+        }
+
+        let spawns = Game.rooms[roomName].find(FIND_MY_SPAWNS);
+        for(let spawn of spawns)
+        {
+            colony.spawns.push(spawn.id);
         }
     }
 }
@@ -47,7 +53,20 @@ export function getColonyName(colony: Colony) : string
     {
         return colony.name;
     }
-    return colony.room.toString();
+    return colony.room;
+}
+
+export function findColonyByName(name: string) : Colony | undefined
+{
+    for(let colony of Memory.colonyRegistry)
+    {
+        if(Memory.rooms[colony] && Memory.rooms[colony].colony && getColonyName(Memory.rooms[colony].colony as Colony) == name)
+        {
+            return Memory.rooms[colony].colony;
+        }
+    }
+
+    return undefined;
 }
 
 function runColony(colony: Colony)
@@ -70,10 +89,12 @@ function ensureFields(colony: Colony)
         colony.classInfo = {};
     }
 
-    for(let creepClass in creepClasses())
-    {
-        colony.classInfo[creepClass] = { currentAmount: 0, desiredAmount: 0 };
-    }
+    let classes = creepClasses();
+
+    classes.forEach((value: RegisteredCreepClass, creepClass: string) => {
+        if(!colony.classInfo[creepClass])
+            colony.classInfo[creepClass] = { currentAmount: 0, desiredAmount: 0 };
+    });
 
     if(!colony.spawns)
     {
@@ -108,19 +129,31 @@ function spawnCreep(colony: Colony, className: string) : boolean
     for(let spawnID of colony.spawns)
     {
         let spawn = Game.getObjectById(spawnID) as StructureSpawn;
-        
-        if(spawn.canCreateCreep(creepClass.composition))
+
+        let dryRunResult = spawn.spawnCreep(creepClass.composition, className + " " + Memory.lastCreepNumber, {
+            memory: memory,
+            dryRun: true
+        });
+
+        if(dryRunResult !== 0)
         {
-            let result = spawn.createCreep(creepClass.composition, undefined, memory);
-            if(typeof(result) === "string")
-            {
-                colony.creepRegistry.push(result);
-                console.log(result + " born in colony " + getColonyName(colony));
-            }
-            else
-            {
-                console.log("Failed to spawn creep! createCreep error code: " + result.toString());
-            }
+            console.log("Failed to spawn creep! spawnCreep error code (dry run): " + dryRunResult.toString());
+            return false;
+        }
+
+        let result = spawn.spawnCreep(creepClass.composition, className + " " + Memory.lastCreepNumber, { memory: memory });
+        
+        if(result === 0)
+        {
+            colony.creepRegistry.push(className + " " + Memory.lastCreepNumber);
+            Memory.lastCreepNumber += 1;
+            colony.classInfo[className].currentAmount += 1;
+            console.log(className + " " + Memory.lastCreepNumber + " born in colony " + getColonyName(colony));
+            return true;
+        }
+        else
+        {
+            console.log("Failed to spawn creep! spawnCreep error code: " + result.toString());
         }
     }
 

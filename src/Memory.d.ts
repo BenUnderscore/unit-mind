@@ -1,5 +1,3 @@
-type ObjectID = string;
-
 
 interface CliContext
 {
@@ -12,6 +10,8 @@ interface Memory
     colonyRegistry: string[];
     //A struct containing all the data necessary for the CLI
     cliContext: CliContext;
+
+    lastCreepNumber: number;
 }
 
 interface RoomMemory
@@ -24,9 +24,9 @@ interface RoomMemory
 interface Colony
 {
     room: string;
-    creepRegistry: ObjectID[];
+    creepRegistry: string[]; //Names, not IDs
     classInfo: Record<string, ClassInfo>;
-    spawns: ObjectID[]; //All the owned spawns in this room
+    spawns: string[]; //All the owned spawns in this room
     name?: string;
 }
 
