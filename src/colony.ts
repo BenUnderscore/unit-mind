@@ -204,6 +204,7 @@ function colonyMain(c: Colony)
 
     handleColonySpawning(c);
 
+    //handleLogistics(c);
 }
 
 //The colony can be in multiple stages

@@ -59,8 +59,22 @@ export class LogisticsSystem
         return demand;
     }
 
-    //Returns the total demand for the resource within the system
-    getTotalDemand(resource: string) : number
+    //Returns the supply of the given node - what is going to be taken
+    getUnreservedSupply(node: string) : number
+    {
+        let supply = this.nodes[node].supply;
+        _.forOwn(this.operations, (op) => {
+            if(op.src == node)
+            {
+                supply -= op.amount;
+            }
+        });
+
+        return supply;
+    }
+
+    //Returns the net demand for the given resource
+    getNetDemand(resource: string) : number
     {
         let sum = 0;
         _.forOwn(this.nodes, (node, key) => {
@@ -75,11 +89,15 @@ export class LogisticsSystem
 
     //Returns the key to the highest priority source with the highest supply
     //Returns null if there are no sources with positive supply
-    getHighestSource(resource: string) : string | null
+    //Threshold value is the minimum amount, so tiny supply is ignored
+    getHighestSource(resource: string, threshold: number = 1) : string | null
     {
         //Get the highest priority
         let priority: number | null = null;
-        _.forOwn(this.nodes, (node) => {
+        _.forOwn(this.nodes, (node, key) => {
+            if(this.getUnreservedSupply(key) < threshold)
+                return;
+
             if(!priority)
                 priority = node.supplyPriority;
             else
@@ -91,7 +109,7 @@ export class LogisticsSystem
         
         let supplies: [string, number][] = _.map(
             _.filter(_.keys(this.nodes), (key) => this.nodes[key].supplyPriority == priority),
-            (key) => [key, this.getDeliveredDemand(key)]
+            (key) => [key, this.getUnreservedSupply(key)]
         );
         
         let highestSupply = 0;
@@ -113,12 +131,15 @@ export class LogisticsSystem
         return null;
     }
 
-    //Returns the key to the highest priority destination with the highest priority
-    getHighestDestination(resource: string) : string | null
+    //Same with getHighestSource, but with demand instead
+    getHighestDestination(resource: string, threshold: number = 1) : string | null
     {
         //Get the highest priority
         let priority: number | null = null;
-        _.forOwn(this.nodes, (node) => {
+        _.forOwn(this.nodes, (node, key) => {
+            if(this.getDeliveredDemand(key) < threshold)
+                return;
+
             if(!priority)
                 priority = node.demandPriority;
             else
@@ -177,7 +198,8 @@ export class LogisticsSystem
     }
 }
 
-/* Basically a unit test
+/*
+//Basically a unit test
 export function testLogistics() : string
 {
     console.log("Testing LogisticsSystem...");
@@ -211,14 +233,15 @@ export function testLogistics() : string
     };
 
     ls.addOperation({
-        amount: 90,
-        src: ls.getHighestSource(RESOURCE_ENERGY) as string,
-        dest: ls.getHighestDestination(RESOURCE_ENERGY) as string
+        amount: 150,
+        src: ls.getHighestSource(RESOURCE_ENERGY, 150) as string,
+        dest: ls.getHighestDestination(RESOURCE_ENERGY, 150) as string
     });
 
-    console.log("Total energy demand: " + ls.getTotalDemand(RESOURCE_ENERGY));
+    console.log("Total energy demand: " + ls.getNetDemand(RESOURCE_ENERGY));
     console.log("Highest source: " + ls.getHighestSource(RESOURCE_ENERGY));
     console.log("Highest destination: " + ls.getHighestDestination(RESOURCE_ENERGY));
+    console.log("Energy left in source: " + ls.getUnreservedSupply("Source"));
 
     return JSON.stringify(ls, null, 4);
 }*/
