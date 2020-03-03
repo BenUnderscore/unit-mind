@@ -122,6 +122,9 @@ function spawnCreep(colony: Colony, className: string) : boolean
     {
         let spawn = Game.getObjectById(spawnID) as StructureSpawn;
 
+        if(spawn.spawning)
+            continue;
+
         let dryRunResult = spawn.spawnCreep(creepClass.composition, className + " " + Memory.lastCreepNumber, {
             memory: memory,
             dryRun: true
@@ -129,7 +132,8 @@ function spawnCreep(colony: Colony, className: string) : boolean
 
         if(dryRunResult !== 0)
         {
-            console.log("Failed to spawn creep! spawnCreep error code (dry run): " + dryRunResult.toString());
+            if(dryRunResult != -6)
+                console.log("Failed to spawn creep! spawnCreep error code (dry run): " + dryRunResult.toString());
             return false;
         }
 
@@ -156,9 +160,9 @@ function spawnCreep(colony: Colony, className: string) : boolean
 function countColonyPopulation(colony: Colony)
 {
     //Unregister any dead creeps
-    _.filter(
+    _.remove(
         colony.creepRegistry,
-        (name: string) => Game.creeps[name] !== undefined
+        (name: string) => Game.creeps[name] === undefined
     );
 
     //Count all the classes
@@ -203,8 +207,6 @@ function colonyMain(c: Colony)
     }
 
     handleColonySpawning(c);
-
-    //handleLogistics(c);
 }
 
 //The colony can be in multiple stages

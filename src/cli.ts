@@ -1,4 +1,4 @@
-import { getColonyName, findColonyByName } from "./colony";
+import { initColony, findColonyByName } from "./colony";
 import { creepClasses } from "./creepClasses";
 
 //Pads the given string with spaces so the returned string has the given length
@@ -10,6 +10,12 @@ function padString(str: string, length: number) : string
     }
 
     return str;
+}
+
+export function createColony(room: string, name: string = room)
+{
+    console.log("Creating colony...");
+    return initColony(room, name);
 }
 
 export function switchColony(targetColony: string) : string
