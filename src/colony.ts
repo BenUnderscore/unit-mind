@@ -1,6 +1,6 @@
 
 import _ from "lodash";
-import { creepClasses, RegisteredCreepClass } from "./creepClasses"
+import { creepClasses, RegisteredCreepClass } from "./creepClasses";
 
 export function initColony(roomName: string, colonyName: string = roomName)
 {
@@ -32,16 +32,6 @@ export function initColony(roomName: string, colonyName: string = roomName)
     }
 }
 
-export function runColonies()
-{
-    for(let roomName of Memory.colonyRegistry)
-    {
-        let colony = Memory.rooms[roomName].colony;
-        if(typeof colony !== "undefined")
-            runColony(colony);
-    }
-}
-
 export function getColonyRoom(colony: Colony) : Room
 {
     return Game.rooms[colony.room];
@@ -60,20 +50,14 @@ export function findColonyByName(name: string) : Colony | undefined
 {
     for(let colony of Memory.colonyRegistry)
     {
-        if(Memory.rooms[colony] && Memory.rooms[colony].colony && getColonyName(Memory.rooms[colony].colony as Colony) == name)
+        if(Memory.rooms[colony] && Memory.rooms[colony].colony &&
+            getColonyName(Memory.rooms[colony].colony as Colony) == name)
         {
             return Memory.rooms[colony].colony;
         }
     }
 
     return undefined;
-}
-
-function runColony(colony: Colony)
-{
-    ensureFields(colony);
-    countColonyPopulation(colony);
-    handleColonySpawning(colony);
 }
 
 //Ensures that all the fields of the colony exist
@@ -93,7 +77,10 @@ function ensureFields(colony: Colony)
 
     classes.forEach((value: RegisteredCreepClass, creepClass: string) => {
         if(!colony.classInfo[creepClass])
-            colony.classInfo[creepClass] = { currentAmount: 0, desiredAmount: 0 };
+            colony.classInfo[creepClass] = {
+                currentAmount: 0,
+                desiredAmount: 0
+            };
     });
 
     if(!colony.spawns)
@@ -123,7 +110,12 @@ function spawnCreep(colony: Colony, className: string) : boolean
 {
     let creepClass = creepClasses().get(className) as RegisteredCreepClass;
 
-    let memory: CreepMemory = { class: className, colonyRoom: colony.room, assignedTask: null, taskMemory: {} };
+    let memory: CreepMemory = {
+        class: className,
+        colonyRoom: colony.room,
+        role: creepClass.defaultRole,
+        roleMemory: {}
+    };
 
     //Find an appropriate spawn
     for(let spawnID of colony.spawns)
@@ -178,5 +170,51 @@ function countColonyPopulation(colony: Colony)
     for(let creepName of colony.creepRegistry)
     {
         colony.classInfo[Memory.creeps[creepName].class].currentAmount++;
+    }
+}
+
+export function runColonies()
+{
+    for(let roomName of Memory.colonyRegistry)
+    {
+        let colony = Memory.rooms[roomName].colony;
+        if(typeof colony !== "undefined")
+            runColony(colony);
+    }
+}
+
+function runColony(colony: Colony)
+{
+    ensureFields(colony);
+    countColonyPopulation(colony);
+    colonyMain(colony);
+}
+
+//COMPLEX AI FUNCTIONS
+
+function colonyMain(c: Colony)
+{
+
+    determineColonyStage(c);
+    
+    if(c.stage == "bootstrap")
+    {
+        c.classInfo["StarterWorker"].desiredAmount = 2;
+    }
+
+    handleColonySpawning(c);
+
+}
+
+//The colony can be in multiple stages
+//Each stage brings on unique functionality
+//List of stages:
+// "bootstrap" - First colony - build extensions
+// "level2" - Basic colony
+function determineColonyStage(c: Colony)
+{
+    if(!c.stage)
+    {
+        c.stage = "bootstrap";
     }
 }

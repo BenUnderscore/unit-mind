@@ -23,11 +23,16 @@ interface RoomMemory
 
 interface Colony
 {
+    //Fixed stuff
     room: string;
     creepRegistry: string[]; //Names, not IDs
     classInfo: Record<string, ClassInfo>;
     spawns: string[]; //All the owned spawns in this room
     name?: string;
+
+    //State
+    logistics?: any;
+    stage?: string;
 }
 
 //Contains information about how many creeps
@@ -42,6 +47,6 @@ interface CreepMemory
 {
     class: string;
     colonyRoom: string;
-    assignedTask: string | null;
-    taskMemory: object; //Can be anything
+    role: string;
+    roleMemory: any; //Can be anything
 }

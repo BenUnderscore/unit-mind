@@ -40,7 +40,8 @@ export function getClassSpawnCost(composition: Array<BodyPartConstant>) : number
 
 export interface RegisteredCreepClass
 {
-    composition: Array<BodyPartConstant>;
+    composition: BodyPartConstant[];
+    defaultRole: string;
 }
 
 export function creepClasses() : Map<string, RegisteredCreepClass>
@@ -51,8 +52,9 @@ export function creepClasses() : Map<string, RegisteredCreepClass>
 
     //The starter worker - bootstraps a colony with only 1 spawn
     //and nothing else
-    creepClassRegistry.set("Starter Worker", {
-        composition: [MOVE, MOVE, WORK, CARRY]
+    creepClassRegistry.set("StarterWorker", {
+        composition: [MOVE, MOVE, WORK, CARRY],
+        defaultRole: "Logistics"
     });
     
     return creepClassRegistry;
