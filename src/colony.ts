@@ -1,8 +1,9 @@
 
 import _ from "lodash";
 import { creepClasses, RegisteredCreepClass } from "./creepClasses";
+import { LogisticsNode, LogisticsSystem } from "./logistics";
 
-export function initColony(roomName: string, colonyName: string = roomName)
+export function initColony(roomName: string)
 {
     if(!Memory.rooms[roomName])
         Memory.rooms[roomName] = { version: 0 };
@@ -13,8 +14,7 @@ export function initColony(roomName: string, colonyName: string = roomName)
             room: roomName,
             creepRegistry: [],
             classInfo: {},
-            spawns: [],
-            name: colonyName
+            spawns: []
         };
         ensureFields(colony);
         Memory.rooms[roomName].colony = colony;
@@ -35,29 +35,6 @@ export function initColony(roomName: string, colonyName: string = roomName)
 export function getColonyRoom(colony: Colony) : Room
 {
     return Game.rooms[colony.room];
-}
-
-export function getColonyName(colony: Colony) : string
-{
-    if(colony.name)
-    {
-        return colony.name;
-    }
-    return colony.room;
-}
-
-export function findColonyByName(name: string) : Colony | undefined
-{
-    for(let colony of Memory.colonyRegistry)
-    {
-        if(Memory.rooms[colony] && Memory.rooms[colony].colony &&
-            getColonyName(Memory.rooms[colony].colony as Colony) == name)
-        {
-            return Memory.rooms[colony].colony;
-        }
-    }
-
-    return undefined;
 }
 
 //Ensures that all the fields of the colony exist
@@ -144,7 +121,7 @@ function spawnCreep(colony: Colony, className: string) : boolean
             colony.creepRegistry.push(className + " " + Memory.lastCreepNumber);
             Memory.lastCreepNumber += 1;
             colony.classInfo[className].currentAmount += 1;
-            console.log(className + " " + Memory.lastCreepNumber + " born in colony " + getColonyName(colony));
+            console.log(className + " " + Memory.lastCreepNumber + " born in colony " + colony.room);
             return true;
         }
         else
@@ -194,30 +171,55 @@ function runColony(colony: Colony)
     colonyMain(colony);
 }
 
+function createLogisticsSystem(c: Colony)
+{
+    c.logistics = new LogisticsSystem();
+
+    let room = Game.rooms[c.room];
+    let sources = room.find(FIND_SOURCES);
+    let myStructures = room.find(FIND_MY_STRUCTURES);
+    let myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+    let minerals = room.find(FIND_MINERALS);
+
+    _.forEach(sources, (source) => {
+        c.logistics[source.id] = {
+            resourceType: RESOURCE_ENERGY,
+            supply: source.energy,
+            demand: 0,
+            supplyPriority: 0,
+            demandPriority: 0
+        };
+    });
+
+    _.forEach(myStructures, (structure) => {
+        c.logistics[structure.id] = {
+            resourceType: RESOURCE_ENERGY,
+            supply: 0,
+            demant: 0,
+            supplyPriority: 0,
+            demandPriority: 0,
+        }
+    })
+
+    _.forEach(myConstructionSites, (constructionSite) => {
+        
+    });
+
+}
+
 //COMPLEX AI FUNCTIONS
 
 function colonyMain(c: Colony)
 {
-
-    determineColonyStage(c);
-    
-    if(c.stage == "bootstrap")
-    {
-        c.classInfo["StarterWorker"].desiredAmount = 2;
-    }
+    updateColonyLogistics(c);
 
     handleColonySpawning(c);
 }
 
-//The colony can be in multiple stages
-//Each stage brings on unique functionality
-//List of stages:
-// "bootstrap" - First colony - build extensions
-// "level2" - Basic colony
-function determineColonyStage(c: Colony)
+function updateColonyLogistics(c: Colony)
 {
-    if(!c.stage)
+    if(!c.logistics)
     {
-        c.stage = "bootstrap";
+        createLogisticsSystem(c);
     }
 }

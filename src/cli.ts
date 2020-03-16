@@ -1,5 +1,6 @@
-import { initColony, findColonyByName } from "./colony";
+import { initColony } from "./colony";
 import { creepClasses } from "./creepClasses";
+import _ from "lodash";
 
 //Pads the given string with spaces so the returned string has the given length
 function padString(str: string, length: number) : string
@@ -12,16 +13,16 @@ function padString(str: string, length: number) : string
     return str;
 }
 
-export function createColony(room: string, name: string = room)
+export function createColony(room: string)
 {
     console.log("Creating colony...");
-    return initColony(room, name);
+    return initColony(room);
 }
 
 export function switchColony(targetColony: string) : string
 {
     //Check if the colony exists
-    let colony = findColonyByName(targetColony);
+    let colony = _.find(Memory.colonyRegistry, (x) => Memory.rooms[x].colony);
 
     if(!colony)
     {
@@ -41,7 +42,7 @@ export function colonyStatus() : string
         return "No current colony!";
     }
 
-    let colony = findColonyByName(targetColony);
+    let colony = Memory.rooms[targetColony].colony;
     if(!colony)
     {
         return "Colony " + targetColony + " does not exist!";
@@ -51,7 +52,6 @@ export function colonyStatus() : string
     //Output general information
     let output = "";
     output += "General information: \n";
-    output += ("Colony name: " + colony.name + "\n");
     output += ("Colony population: " + colony.creepRegistry.length.toString() + "\n");
 
     //Output the current class breakdown
@@ -106,7 +106,7 @@ export function desiredClassCount(creepClass: string, amount: number)
         return "No current colony!";
     }
 
-    let colony = findColonyByName(targetColony);
+    let colony = Memory.rooms[targetColony].colony;
     if(!colony)
     {
         return "Colony " + targetColony + " does not exist!";

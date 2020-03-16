@@ -19,6 +19,8 @@ export interface LogisticsNode
 export interface LogisticsOperation
 {
     amount: number; //The amount of a given resource
+    //When source and destination exist
+    //They reserve the appropriate amount of resources
     src?: string; //Source node key
     dest?: string; //Destination node key
 }

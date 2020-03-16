@@ -1,5 +1,6 @@
 
-import { runColonies } from "./colony";
+import { runColonies, initColony } from "./colony";
+import _ from "lodash"
 
 export const initMemory = function()
 {
@@ -26,9 +27,14 @@ export const loop = function()
         initMemory();
     }
 
+    //Initialize the first colony
+    if(_.size(Memory.colonyRegistry) == 0 && _.size(Game.spawns) == 1)
+    {
+        let spawn = _.first(_.values(Game.spawns));
+        if(spawn)
+            initColony(spawn.room.name);
+    }
+
     //Run colonies
     runColonies();
-
-    //Run creep logic
-    //runCreeps();
 }
