@@ -1,4 +1,4 @@
-
+/* OSBOLETE
 interface CliContext
 {
     currentColony: string | null;
@@ -16,8 +16,6 @@ interface Memory
 
 interface RoomMemory
 {
-    //The version number of the memory in this room, set to 1
-    version: number;
     colony?: Colony;
 }
 
@@ -27,7 +25,13 @@ interface Colony
     room: string;
     creepRegistry: string[]; //Names, not IDs
     classInfo: Record<string, ClassInfo>;
-    spawns: string[]; //All the owned spawns in this room
+
+    spawns: string[];
+    sources: string[];
+    extensions: string[];
+    walls: string[];
+
+    roomObjectMetas: Record<string, any>;
 
     //State
     logistics?: any;
@@ -47,4 +51,44 @@ interface CreepMemory
     colonyRoom: string;
     role: string;
     roleMemory: any; //Can be anything
+}*/
+
+//General stuff
+
+interface Memory
+{
+    //Unique.ts
+    lastUnique: number;
+
+    //SpawnSystem.ts
+    spawnOrders: Record<number, SpawnOrder>;
+    lastGeneratedCreepName?: string;
+}
+
+interface CreepMemory
+{
+    role: string;
+}
+
+//DECLARATIONS FOR OTHER FILES
+
+//Callbacks.ts
+type CallbackID = string;
+
+//SpawnSystem.ts
+interface SpawnOrder
+{
+    //USER FIELDS
+    system: string; //The system from which the order came from
+    class: string; //The creep class to spawn
+    count: number; //The amount of creeps to spawn of this class
+    room: string; //The room where the creeps will be needed
+    //Prioritization is done within the system
+
+    //CALLBACK
+    meta?: any; //Any necessary metadata for the callback
+    onSpawn?: CallbackID; //(creep: Creep, order: SpawnOrder)
+
+    //SYSTEM FIELDS
+    spawned?: number;
 }

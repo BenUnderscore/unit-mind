@@ -41,7 +41,7 @@ export function getClassSpawnCost(composition: Array<BodyPartConstant>) : number
 export interface RegisteredCreepClass
 {
     composition: BodyPartConstant[];
-    defaultRole: string;
+    shortenedName: string;
 }
 
 export function creepClasses() : Map<string, RegisteredCreepClass>
@@ -54,7 +54,7 @@ export function creepClasses() : Map<string, RegisteredCreepClass>
     //and nothing else
     creepClassRegistry.set("StarterWorker", {
         composition: [MOVE, MOVE, WORK, CARRY],
-        defaultRole: "Logistics"
+        shortenedName: "SW",
     });
     
     return creepClassRegistry;

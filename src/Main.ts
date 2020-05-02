@@ -1,4 +1,4 @@
-
+/*
 import { runColonies, initColony } from "./colony";
 import _ from "lodash"
 
@@ -11,7 +11,7 @@ export const initMemory = function()
     Memory.cliContext = { currentColony: null };
 }
 
-export const loop = function()
+export const oldLoop = function()
 {
     //Clean creep memory
     for(let creepName in Memory.creeps)
@@ -37,4 +37,9 @@ export const loop = function()
 
     //Run colonies
     runColonies();
+}*/
+
+export const loop = function()
+{
+    
 }
