@@ -63,11 +63,14 @@ interface Memory
     //SpawnSystem.ts
     spawnOrders: Record<number, SpawnOrder>;
     lastGeneratedCreepName?: string;
+    spawningCreeps: string[]; //Creep names
 }
 
 interface CreepMemory
 {
-    role: string;
+    class: string;
+    orderNum?: number;
+    spawn?: Id<StructureSpawn>;
 }
 
 //DECLARATIONS FOR OTHER FILES
@@ -86,8 +89,11 @@ interface SpawnOrder
     //Prioritization is done within the system
 
     //CALLBACK
-    meta?: any; //Any necessary metadata for the callback
+    meta?: any; //Any necessary metadata for callbacks
+    //onSpawn gets called once the creep has finished spawning and is in the world
+    //Use it to initialize its memory and hand it off to the system responsible for it
     onSpawn?: CallbackID; //(creep: Creep, order: SpawnOrder)
+    onCancel?: CallbackID; //(order: SpawnOrder)
 
     //SYSTEM FIELDS
     spawned?: number;

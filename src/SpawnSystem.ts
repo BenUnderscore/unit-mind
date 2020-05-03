@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { getUnique } from "./Unique";
 import { creepClasses, RegisteredCreepClass } from "./CreepClasses";
+import { listCallbacks, call } from "./Callbacks";
 
 export function placeSpawnOrder(order: SpawnOrder) : number
 {
@@ -17,7 +18,12 @@ export function getOrder(order: number) : SpawnOrder | null
 
 export function cancelOrder(order: number)
 {
-    delete Memory.spawnOrders[order];
+    if(Memory.spawnOrders[order])
+    {
+        if(Memory.spawnOrders[order].onCancel)
+            call(Memory.spawnOrders[order].onCancel as CallbackID, Memory.spawnOrders[order]);
+        delete Memory.spawnOrders[order];
+    }
 }
 
 function orderFail(order: SpawnOrder, orderNum: number, reason: string)
@@ -60,7 +66,8 @@ export function runSpawnSystem()
         let selectedSpawn: StructureSpawn | undefined;
         let restart: boolean = false;
         do {
-            _.forEach(Game.spawns, (spawn) => {
+            _.forEach(Game.spawns, (spawn) =>
+            {
                 let status = spawn.spawnCreep((creepClass as RegisteredCreepClass).composition, creepName, { dryRun: true });
                 switch(status)
                 {
@@ -93,7 +100,59 @@ export function runSpawnSystem()
         if(selectedSpawn !== undefined)
         {
             let status = selectedSpawn.spawnCreep((creepClass as RegisteredCreepClass).composition, creepName);
-            console.error("Failed to spawn at spawn " + Spawn.name + " despite successful dry run!");
+            if(status !== OK)
+            {
+                console.error("Failed to spawn at spawn " + Spawn.name + " despite successful dry run!");
+            }
+            else
+            {
+                Memory.spawningCreeps.push(creepName);
+                Memory.creeps[creepName] = { class: order.class, orderNum: orderNum, spawn: selectedSpawn.id };
+            }
+        }
+    });
+
+    //Order cancellations
+    _.forEach(ordersToCancel, (orderNum) =>
+    {
+        cancelOrder(orderNum);
+    });
+
+    //Hand off spawned creeps
+    _.forEach(Memory.spawningCreeps, (creepName) =>
+    {
+        if(!Game.creeps[creepName].spawning)
+        {
+            //Hand it off
+            let orderNum = Memory.creeps[creepName].orderNum as number;
+            if(Memory.spawnOrders[orderNum])
+            {
+                let order = Memory.spawnOrders[orderNum];
+                if(order.onSpawn)
+                {
+                    call(order.onSpawn, Game.creeps[creepName], order);
+                }
+
+                delete Memory.spawnOrders[orderNum];
+            }
+            else
+            {
+                //Handle orphaned creeps
+                console.log("Recycling orphaned creep " + creepName)
+                let spawn = Game.getObjectById(Memory.creeps[creepName].spawn as Id<StructureSpawn>);
+                if(!spawn)
+                {
+                    console.error("Failed to recycle orphaned creep " + creepName + ", it will be left alone");
+                }
+                else
+                {
+                    let status = spawn.recycleCreep(Game.creeps[creepName]);
+                    if(status !== OK)
+                    {
+                        console.error("Failed to recycle orphaned creep " + creepName + ". Error code: " + status);
+                    }
+                }
+            }
         }
     });
 }
@@ -116,55 +175,26 @@ function resetCreepNameCache()
 
 
 //NAME GENERATOR
-//Generates japanese-style names, because it's relatively simple
+//Generates japanese-style names, because the rules are very simple
 
 let nameMora = ["a", "i", "u", "e", "o",
-                     "ka", "ki", "ku", "ke", "ko",
-                     "ga", "gi", "gu", "ge", "go",
-                     "sa", "shi", "su", "se", "so",
-                     "sha", "sho", "shu",
-                     "za", "ji", "zu", "ze", "zo",
-                     "ja", "ju", "jo",
-                     "ta", "chi", "tsu", "te", "to",
-                     "da", /*,"ji, "zu",*/ "de", "do",
-                     "na", "ni", "nu", "ne", "no",
-                     "ha", "hi", "fu", "he", "ho",
-                     "ba", "bi", "bu", "be", "bo",
-                     "pa", "pi", "pu", "pe", "po",
-                     "ma", "mi", "mu", "me", "mo",
-                     "ra", "ri", "ru", "re", "ro",
-                     "ya", "yu", "yo", "n", " "]; //Space is double consonant (small tsu)
-
-//Potentially more efficient algorithm - incomplete
-/*
-function generateRandomName() : string
-{
-    let random = getUnique();
-    let syllableCount = Math.max(Math.ceil(Math.pow(random, 1/(nameSyllables.length))), 2);
-
-    //Get the syllables from the "random" number
-    let remainingRandom = random;
-    let syllableIndices = [];
-    for(let i = 1; i <= syllableCount; i++)
-    {
-        let x = remainingRandom % nameSyllables.length;
-        syllableIndices.push(x);
-        remainingRandom /= nameSyllables.length;
-    }
-
-    //Swap the order of the first two syllables if necessary
-    if(nameSyllables[syllableIndices[0]] == "n" || nameSyllables[syllableIndices[0]] == " ")
-    {
-        let buf = syllableIndices[0];
-        syllableIndices[0] = syllableIndices[1];
-        syllableIndices[1] = buf;
-    }
-
-    for(let i = 0; i < syllableIndices.length; i++)
-    {
-        
-    }
-}*/
+                "ka", "ki", "ku", "ke", "ko",
+                "kya", "kyo", "kyu",
+                "ga", "gi", "gu", "ge", "go",
+                "gya", "gyo", "gyu",
+                "sa", "shi", "su", "se", "so",
+                "sha", "sho", "shu",
+                "za", "ji", "zu", "ze", "zo",
+                "ja", "ju", "jo",
+                "ta", "chi", "tsu", "te", "to",
+                "da", /*,"ji, "zu",*/ "de", "do",
+                "na", "ni", "nu", "ne", "no",
+                "ha", "hi", "fu", "he", "ho",
+                "ba", "bi", "bu", "be", "bo",
+                "pa", "pi", "pu", "pe", "po",
+                "ma", "mi", "mu", "me", "mo",
+                "ra", "ri", "ru", "re", "ro",
+                "ya", "yu", "yo", "n", " "]; //Space is double consonant (small tsu)
 
 function generateRandomName() : string
 {
