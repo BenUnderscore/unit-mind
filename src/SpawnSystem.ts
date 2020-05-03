@@ -128,12 +128,25 @@ export function spawnTick()
             if(Memory.spawnOrders[orderNum])
             {
                 let order = Memory.spawnOrders[orderNum];
+                
+                if(order.spawned)
+                {
+                    order.spawned++;
+                }
+                else
+                {
+                    order.spawned = 1;
+                }
+
                 if(order.onSpawn)
                 {
                     call(order.onSpawn, Game.creeps[creepName], order);
                 }
 
-                delete Memory.spawnOrders[orderNum];
+                if(order.spawned >= order.count)
+                {
+                    delete Memory.spawnOrders[orderNum];
+                }
             }
             else
             {
