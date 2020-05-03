@@ -35,7 +35,7 @@ function orderFail(order: SpawnOrder, orderNum: number, reason: string)
     console.error("Reason: " + reason);
 }
 
-export function runSpawnSystem()
+export function spawnTick()
 {
 
     let ordersToCancel: number[] = [];
