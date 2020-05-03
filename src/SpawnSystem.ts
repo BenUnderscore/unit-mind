@@ -233,7 +233,8 @@ function generateRandomName() : string
         }
 
         //Rule 2
-        enforceRule(i, (index) => {
+        enforceRule(i, (index) =>
+        {
             if(mora[index] !== "n" && mora[index] !== " ")
                 return true;
             
@@ -245,7 +246,8 @@ function generateRandomName() : string
 
         //Rule 3 & 4
         let n = 0;
-        enforceRule(i, (index) => {
+        enforceRule(i, (index) =>
+        {
             n++;
             if(mora[index] !== " ")
                 return true;
