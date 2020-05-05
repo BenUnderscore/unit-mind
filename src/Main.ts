@@ -3,10 +3,15 @@ import { spawnTick } from "./SpawnSystem"
 function initMemory()
 {
     //Unique.ts
-    Memory.lastUnique = 0;
+    if(!Memory.lastUnique)
+        Memory.lastUnique = 0;
 
     //SpawnSystem.ts
-    Memory.spawnOrders = {};
+    if(!Memory.spawnSystem)
+        Memory.spawnSystem = {
+            spawnOrders: {},
+            spawningCreeps: []
+        };
 }
 
 export const loop = function()

@@ -61,9 +61,7 @@ interface Memory
     lastUnique: number;
 
     //SpawnSystem.ts
-    spawnOrders: Record<number, SpawnOrder>;
-    lastGeneratedCreepName?: string;
-    spawningCreeps: string[]; //Creep names
+    spawnSystem: SpawnSystem;
 }
 
 interface CreepMemory
@@ -79,6 +77,13 @@ interface CreepMemory
 type CallbackID = string;
 
 //SpawnSystem.ts
+interface SpawnSystem
+{
+    spawnOrders: Record<number, SpawnOrder>;
+    lastGeneratedCreepName?: string;
+    spawningCreeps: string[]; //Creep names
+}
+
 interface SpawnOrder
 {
     //USER FIELDS

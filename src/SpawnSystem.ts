@@ -7,22 +7,22 @@ export function placeSpawnOrder(order: SpawnOrder) : number
 {
     let n = getUnique();
     order.spawned = 0;
-    Memory.spawnOrders[n] = order;
+    Memory.spawnSystem.spawnOrders[n] = order;
     return n;
 }
 
 export function getOrder(order: number) : SpawnOrder | null
 {
-    return Memory.spawnOrders[order];
+    return Memory.spawnSystem.spawnOrders[order];
 }
 
 export function cancelOrder(order: number)
 {
-    if(Memory.spawnOrders[order])
+    if(Memory.spawnSystem.spawnOrders[order])
     {
-        if(Memory.spawnOrders[order].onCancel)
-            call(Memory.spawnOrders[order].onCancel as CallbackID, Memory.spawnOrders[order]);
-        delete Memory.spawnOrders[order];
+        if(Memory.spawnSystem.spawnOrders[order].onCancel)
+            call(Memory.spawnSystem.spawnOrders[order].onCancel as CallbackID, Memory.spawnSystem.spawnOrders[order]);
+        delete Memory.spawnSystem.spawnOrders[order];
     }
 }
 
@@ -40,7 +40,7 @@ export function spawnTick()
 
     let ordersToCancel: number[] = [];
     //Naive spawn algorithm
-    _.forEach(Memory.spawnOrders, (order, orderNumber) =>
+    _.forEach(Memory.spawnSystem.spawnOrders, (order, orderNumber) =>
     {
         let orderNum = parseInt(orderNumber);
 
@@ -106,7 +106,7 @@ export function spawnTick()
             }
             else
             {
-                Memory.spawningCreeps.push(creepName);
+                Memory.spawnSystem.spawningCreeps.push(creepName);
                 Memory.creeps[creepName] = { class: order.class, orderNum: orderNum, spawn: selectedSpawn.id };
             }
         }
@@ -119,15 +119,15 @@ export function spawnTick()
     });
 
     //Hand off spawned creeps
-    _.forEach(Memory.spawningCreeps, (creepName) =>
+    _.forEach(Memory.spawnSystem.spawningCreeps, (creepName) =>
     {
         if(!Game.creeps[creepName].spawning)
         {
             //Hand it off
             let orderNum = Memory.creeps[creepName].orderNum as number;
-            if(Memory.spawnOrders[orderNum])
+            if(Memory.spawnSystem.spawnOrders[orderNum])
             {
-                let order = Memory.spawnOrders[orderNum];
+                let order = Memory.spawnSystem.spawnOrders[orderNum];
                 
                 if(order.spawned)
                 {
@@ -145,7 +145,7 @@ export function spawnTick()
 
                 if(order.spawned >= order.count)
                 {
-                    delete Memory.spawnOrders[orderNum];
+                    delete Memory.spawnSystem.spawnOrders[orderNum];
                 }
             }
             else
@@ -173,17 +173,17 @@ export function spawnTick()
 //Caches the returned name, so that it doesn't waste processing power on generating names
 function generateCreepName()
 {
-    if(!Memory.lastGeneratedCreepName)
+    if(!Memory.spawnSystem.lastGeneratedCreepName)
     {
-        Memory.lastGeneratedCreepName = generateRandomName();
+        Memory.spawnSystem.lastGeneratedCreepName = generateRandomName();
     }
-    return Memory.lastGeneratedCreepName;
+    return Memory.spawnSystem.lastGeneratedCreepName;
 }
 
 //Resets the cache for the creep name, useful for when a creep gets spawned
 function resetCreepNameCache()
 {
-    Memory.lastGeneratedCreepName = undefined;
+    Memory.spawnSystem.lastGeneratedCreepName = undefined;
 }
 
 
