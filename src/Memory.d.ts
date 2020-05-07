@@ -1,58 +1,3 @@
-/* OSBOLETE
-interface CliContext
-{
-    currentColony: string | null;
-}
-
-interface Memory
-{
-    //A list of all the rooms containing colonies
-    colonyRegistry: string[];
-    //A struct containing all the data necessary for the CLI
-    cliContext: CliContext;
-
-    lastCreepNumber: number;
-}
-
-interface RoomMemory
-{
-    colony?: Colony;
-}
-
-interface Colony
-{
-    //Fixed stuff
-    room: string;
-    creepRegistry: string[]; //Names, not IDs
-    classInfo: Record<string, ClassInfo>;
-
-    spawns: string[];
-    sources: string[];
-    extensions: string[];
-    walls: string[];
-
-    roomObjectMetas: Record<string, any>;
-
-    //State
-    logistics?: any;
-}
-
-//Contains information about how many creeps
-//of a given class there are and how many there should be
-interface ClassInfo
-{
-    currentAmount: number;
-    desiredAmount: number;
-}
-
-interface CreepMemory
-{
-    class: string;
-    colonyRoom: string;
-    role: string;
-    roleMemory: any; //Can be anything
-}*/
-
 //General stuff
 
 interface Memory
@@ -72,6 +17,11 @@ interface CreepMemory
     class: string;
     orderNum?: number;
     spawn?: Id<StructureSpawn>;
+}
+
+interface RoomMemory
+{
+    activityStatus?: RoomActivityStatus;
 }
 
 //DECLARATIONS FOR OTHER FILES
@@ -118,3 +68,9 @@ interface SpawnOrder
     spawned?: number;
     orderNum?: number;
 }
+
+//Rooms.ts
+type RoomActivityStatus =
+      "Dormant" //A room that is untouched by the player
+    | "Claimed" //A room that has been claimed by the player
+    | "Active"; //A room that is fully active (part of the economy)

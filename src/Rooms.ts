@@ -1,3 +1,61 @@
+//Rooms.ts: All sorts of utilities related to rooms
+
+import _ from "lodash";
+
+export function roomsPreTick()
+{
+    if(!Memory.rooms)
+        Memory.rooms = {};
+    
+    activeRoomsPreTick();
+}
+
+//ACTIVE ROOMS API
+//This API allows for management of activity in different rooms.
+//This is stored in RoomMemory, and is useful for knowing what rooms are active.
+function activeRoomsPreTick()
+{
+    _.forEach(Game.rooms, (room: Room) =>
+    {
+        if(!Memory.rooms[room.name])
+        {
+            Memory.rooms[room.name] = {};
+        }
+
+        if(!room.memory.activityStatus)
+        {
+            room.memory.activityStatus = "Dormant";
+            
+        }
+    });
+}
+
+export function getAllRoomsWithActivityStatus(status: RoomActivityStatus) : Room[]
+{
+    return _.filter(Game.rooms, (room: Room) => room.memory.activityStatus === status);
+}
+
+export function changeRoomActivityStatus(room: Room, status: RoomActivityStatus)
+{
+    room.memory.activityStatus = status;
+    roomActivityStatusChanged(room);
+}
+
+let activityStatusChangeCallbacks: ((room: Room) => void)[];
+
+export function registerRoomActivityStatusChangeCallback(f: (room: Room) => void)
+{
+    activityStatusChangeCallbacks.push(f);
+}
+
+function roomActivityStatusChanged(room: Room)
+{
+    _.forEach(activityStatusChangeCallbacks, (f: (room: Room) => void) => f(room));
+}
+
+//ROOM POSITION API
+//This API allows for calculation of distances between rooms.
+//It is currently unused.
 
 export function getRoomPositionFromName(roomName: string) : { x: number, y: number }
 {
