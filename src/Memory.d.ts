@@ -60,6 +60,9 @@ interface Memory
     //Unique.ts
     lastUnique: number;
 
+    //Time.ts
+    time: Time;
+
     //SpawnSystem.ts
     spawnSystem: SpawnSystem;
 }
@@ -75,6 +78,15 @@ interface CreepMemory
 
 //Callbacks.ts
 type CallbackID = string;
+
+//Time.ts
+interface Time
+{
+    //How many ticks have elapsed since the beginning
+    ticksElapsed: number;
+    //The number of the current period
+    currentPeriod: number;
+}
 
 //SpawnSystem.ts
 interface SpawnSystem
@@ -98,8 +110,11 @@ interface SpawnOrder
     //onSpawn gets called once the creep has finished spawning and is in the world
     //Use it to initialize its memory and hand it off to the system responsible for it
     onSpawn?: CallbackID; //(creep: Creep, order: SpawnOrder)
-    onCancel?: CallbackID; //(order: SpawnOrder)
+    //onFinish gets called once the last creep has been spawned
+    //Boolean is set to true if the order has instead been cancelled
+    onFinish?: CallbackID; //(order: SpawnOrder, cancelled: boolean)
 
     //SYSTEM FIELDS
     spawned?: number;
+    orderNum?: number;
 }

@@ -4,9 +4,9 @@
 
 let callbacks: Map<CallbackID, Function> = new Map<CallbackID, Function>();
 
-export function registerCallback(func: Function, id: CallbackID)
+export function registerCallback(func: Function)
 {
-    callbacks.set(id, func);
+    callbacks.set(func.name, func);
 }
 
 export function call(id: CallbackID, ...params: any[])

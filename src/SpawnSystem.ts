@@ -1,3 +1,12 @@
+//SpawnSystem.ts: Takes high-level spawning orders from other systems and handles
+//all the low-level details of spawning.
+
+//The idea is that other systems can place orders here.
+//The spawn system will try and fulfill them, and hand control over to the appropriate system.
+//For example the energy system will realize it doesn't have enough creeps to carry everything it needs,
+//so it will order new creeps to increase capacity.
+//The spawn system will spawn the new creeps and hand them over to the energy system.
+
 import _ from "lodash";
 import { getUnique } from "./Unique";
 import { creepClasses, RegisteredCreepClass } from "./CreepClasses";
@@ -7,6 +16,7 @@ export function placeSpawnOrder(order: SpawnOrder) : number
 {
     let n = getUnique();
     order.spawned = 0;
+    order.orderNum = n;
     Memory.spawnSystem.spawnOrders[n] = order;
     return n;
 }
@@ -20,8 +30,8 @@ export function cancelOrder(order: number)
 {
     if(Memory.spawnSystem.spawnOrders[order])
     {
-        if(Memory.spawnSystem.spawnOrders[order].onCancel)
-            call(Memory.spawnSystem.spawnOrders[order].onCancel as CallbackID, Memory.spawnSystem.spawnOrders[order]);
+        if(Memory.spawnSystem.spawnOrders[order].onFinish)
+            call(Memory.spawnSystem.spawnOrders[order].onFinish as CallbackID, Memory.spawnSystem.spawnOrders[order], true);
         delete Memory.spawnSystem.spawnOrders[order];
     }
 }
@@ -145,6 +155,10 @@ export function spawnTick()
 
                 if(order.spawned >= order.count)
                 {
+                    if(order.onFinish)
+                    {
+                        call(order.onFinish as CallbackID, order, false);
+                    }
                     delete Memory.spawnSystem.spawnOrders[orderNum];
                 }
             }
@@ -168,6 +182,11 @@ export function spawnTick()
             }
         }
     });
+}
+
+export function spawnPreTick()
+{
+    
 }
 
 //Caches the returned name, so that it doesn't waste processing power on generating names

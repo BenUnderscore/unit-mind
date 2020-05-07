@@ -16,6 +16,11 @@ function initMemory()
 
 export const loop = function()
 {
+    //Pretick
     initMemory();
+
+    //Tick
     spawnTick();
+
+    //Post-tick
 }
