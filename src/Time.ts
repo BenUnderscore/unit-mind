@@ -15,7 +15,7 @@ export function timeTick()
 {
     Memory.time.ticksElapsed++;
 
-    if(Memory.time.ticksElapsed % PERIOD_LENGTH === 0)
+    if(isPeriodNew())
     {
         periodChange();
     }
@@ -26,6 +26,11 @@ let periodChangeCallbacks: (() => void)[] = [];
 export function registerPeriodChangeCallback(f: () => void)
 {
     periodChangeCallbacks.push(f);
+}
+
+export function isPeriodNew() : boolean
+{
+    return Memory.time.ticksElapsed % PERIOD_LENGTH === 0;
 }
 
 function periodChange()

@@ -1,4 +1,5 @@
-import { spawnTick } from "./SpawnSystem"
+import { spawnTick, spawnPreTick, spawnPostTick } from "./SpawnSystem"
+import { timeTick } from "./Time";
 
 function initMemory()
 {
@@ -12,15 +13,25 @@ function initMemory()
             spawnOrders: {},
             spawningCreeps: []
         };
+    
+    //EnergySystem.ts
+    if(!Memory.energySystem)
+        Memory.energySystem = {
+            ownedSources: [],
+            creeps: {},
+        };
 }
 
 export const loop = function()
 {
     //Pretick
     initMemory();
+    spawnPreTick();
 
     //Tick
     spawnTick();
+    timeTick();
 
     //Post-tick
+    spawnPostTick();
 }

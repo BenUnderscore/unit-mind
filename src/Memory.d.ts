@@ -2,14 +2,10 @@
 
 interface Memory
 {
-    //Unique.ts
     lastUnique: number;
-
-    //Time.ts
     time: Time;
-
-    //SpawnSystem.ts
     spawnSystem: SpawnSystem;
+    energySystem: EnergySystem;
 }
 
 interface CreepMemory
@@ -67,6 +63,35 @@ interface SpawnOrder
     //SYSTEM FIELDS
     spawned?: number;
     orderNum?: number;
+}
+
+//EnergySystem.ts
+interface EnergySystem
+{
+    ownedSources: SourceMeta[];
+    creeps: Record<string, EnergyCreepMeta>; //Creep names
+}
+
+interface SourceMeta
+{
+    id: Id<Source>,
+    harvestedCurrentPeriod: number, //Already harvested amount
+    potentialHarvest: number, //Planned harvest amount
+    harvestedPrevPeriod: number,
+}
+
+type EnergyCreepStatus = 
+    | "Idle"         //Not doing anything
+    | "Moving"       //Moving towards its target
+    | "Harvesting"   //
+    | "Transferring"
+    | "Unknown";
+
+interface EnergyCreepMeta
+{
+    status: EnergyCreepStatus,
+    target?: Id<RoomObject>,
+    
 }
 
 //Rooms.ts

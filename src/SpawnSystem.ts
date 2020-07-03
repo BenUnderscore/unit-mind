@@ -45,9 +45,13 @@ function orderFail(order: SpawnOrder, orderNum: number, reason: string)
     console.error("Reason: " + reason);
 }
 
-export function spawnTick()
+export function spawnPreTick()
 {
 
+}
+
+export function spawnTick()
+{
     let ordersToCancel: number[] = [];
     //Naive spawn algorithm
     _.forEach(Memory.spawnSystem.spawnOrders, (order, orderNumber) =>
@@ -184,9 +188,9 @@ export function spawnTick()
     });
 }
 
-export function spawnPreTick()
+export function spawnPostTick()
 {
-    
+
 }
 
 //Caches the returned name, so that it doesn't waste processing power on generating names
